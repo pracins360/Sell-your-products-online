@@ -79,16 +79,32 @@
 
 <script>
 fetch("https://script.google.com/macros/s/AKfycbzoZNZ6ZdJV13pnrPmH6VAtz7T5W_N4XsoMPErbNmDnpCh7eK5Pk1GrT1eqRuyk8YqDTg/exec")
-  .then(res => res.text())
-  .then(text => {
-    document.getElementById("products").innerHTML =
-      "<pre style='white-space:pre-wrap;background:white;padding:15px;'>" +
-      text +
-      "</pre>";
+  .then(res => res.json())
+  .then(data => {
+    let container = document.getElementById("products");
+    container.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      container.innerHTML = "<p>No products found</p>";
+      return;
+    }
+
+    data.forEach(p => {
+      container.innerHTML += `
+        <div class="card">
+          <img src="${p["Image URL"]}" style="width:100%">
+          <div class="title">${p["Product Name"]}</div>
+          <div class="price">€${p["Price (€)"]}</div>
+
+          <a class="btn whatsapp" href="${p["WhatsApp Link"]}" target="_blank">💬 Chat</a>
+          <a class="btn pay" href="${p["Sentoo QR URL"]}" target="_blank">💳 Pay</a>
+        </div>
+      `;
+    });
   })
   .catch(err => {
     document.getElementById("products").innerHTML =
-      "<p style='color:red;'>Fetch error: " + err + "</p>";
+      "<p style='color:red;'>Error loading products</p>";
   });
 </script>
 
