@@ -66,6 +66,9 @@
     .pay {
       background: #007bff;
     }
+    <button class="btn details" onclick="alert(`${p["Details"] || "No details added yet."}`)">
+  ℹ️ Details
+</button>
   </style>
 </head>
 
@@ -107,6 +110,11 @@ fetch("https://script.google.com/macros/s/AKfycbzoZNZ6ZdJV13pnrPmH6VAtz7T5W_N4Xs
       "<p style='color:red;'>Error loading products</p>";
   });
 </script>
-
+.details {
+  background: #555;
+  width: 100%;
+  border: none;
+  font-size: 1rem;
+}
 </body>
 </html>
