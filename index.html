@@ -1,304 +1,329 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Kingsday Market · Product Cards with Details</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Online v2.0</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
-      font-family: 'Segoe UI', Arial, system-ui, sans-serif;
-      background: #f8f6f0;
       margin: 0;
-      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f3f6fb;
+      color: #102033;
     }
-
     header {
-      background: linear-gradient(135deg, #ff8c00, #ffae42);
+      background: linear-gradient(135deg, #071c36, #003f88);
       color: white;
-      padding: 1.2rem 1rem;
+      padding: 22px 16px;
       text-align: center;
-      font-size: 1.8rem;
+    }
+    header h1 { margin: 0; font-size: 2rem; }
+    header p { margin: 8px 0 0; opacity: 0.9; }
+    .wrap { max-width: 1100px; margin: auto; padding: 16px; }
+    .admin-panel, .customer-panel {
+      background: white;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    h2 { margin-top: 0; }
+    label { font-weight: bold; display: block; margin: 12px 0 6px; }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccd6e0;
+      font-size: 1rem;
+    }
+    button {
+      background: #0066d6;
+      color: white;
       font-weight: bold;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      letter-spacing: 1px;
+      border: none;
+      cursor: pointer;
+      margin-top: 14px;
     }
-
-    header small {
-      font-size: 0.8rem;
-      display: block;
-      font-weight: normal;
-      opacity: 0.9;
-      margin-top: 6px;
+    button:hover { background: #004da3; }
+    .danger { background: #d62828; }
+    .danger:hover { background: #a81818; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .price-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
     }
-
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 18px 14px;
+    .price-tabs button {
+      min-width: 95px;
+      margin-top: 0;
+      background: #e8eef7;
+      color: #102033;
+      border: 1px solid #cdd8e6;
     }
-
+    .price-tabs button.active {
+      background: #0066d6;
+      color: white;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 14px;
+    }
     .card {
       background: white;
-      border-radius: 24px;
-      padding: 16px;
-      margin-bottom: 24px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-      transition: transform 0.2s, box-shadow 0.2s;
-      border: 1px solid #ffe3bd;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #dde5ef;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
     }
-
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 18px 28px rgba(0,0,0,0.12);
-    }
-
     .card img {
       width: 100%;
-      border-radius: 20px;
+      height: 170px;
       object-fit: cover;
-      aspect-ratio: 1 / 1;
-      background: #f0ede8;
-      border: 1px solid #ffe0b5;
+      background: #edf2f7;
     }
-
-    .title {
-      font-size: 1.35rem;
-      font-weight: 800;
-      margin: 14px 0 6px 0;
-      color: #2c2b28;
-      line-height: 1.3;
+    .card-body { padding: 12px; }
+    .store-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #ffcc00;
+      color: #111;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-bottom: 6px;
     }
-
-    .price {
-      color: #2a7f2e;
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-    }
-    .price span {
-      font-size: 0.85rem;
-      font-weight: normal;
-      color: #5f6c5f;
-    }
-
-    /* unified button styles */
-    .btn {
-      display: block;
+    .price { font-size: 1.5rem; font-weight: bold; color: #0066d6; margin: 6px 0; }
+    .small { color: #526477; font-size: 0.9rem; }
+    .actions { display: flex; gap: 8px; }
+    .actions button { font-size: 0.85rem; padding: 9px; }
+    .empty {
       text-align: center;
-      padding: 12px 10px;
-      margin: 8px 0 0 0;
-      border-radius: 60px;
-      text-decoration: none;
-      color: white;
-      font-weight: 600;
-      font-size: 1rem;
-      transition: all 0.2s ease;
-      cursor: pointer;
-      border: none;
-      font-family: inherit;
+      padding: 28px;
+      color: #526477;
+      border: 2px dashed #ccd6e0;
+      border-radius: 16px;
+    }
+    .preview {
       width: 100%;
+      max-height: 260px;
+      object-fit: contain;
+      background: #eef3f8;
+      border-radius: 14px;
+      margin-top: 10px;
+      display: none;
     }
-
-    .whatsapp {
-      background: #25D366;
-      box-shadow: 0 2px 6px rgba(37,211,102,0.3);
-    }
-    .whatsapp:hover {
-      background: #1da85c;
-      transform: scale(0.98);
-    }
-
-    .pay {
-      background: #007bff;
-      box-shadow: 0 2px 6px rgba(0,123,255,0.3);
-    }
-    .pay:hover {
-      background: #0062cc;
-      transform: scale(0.98);
-    }
-
-    /* DETAILS BUTTON - exactly as requested: background #555, full width, no border, 1rem */
-    .details {
-      background: #555;
-      width: 100%;
-      border: none;
-      font-size: 1rem;
-      margin-top: 8px;
-    }
-    .details:hover {
-      background: #3a3a3a;
-      transform: scale(0.98);
-    }
-
-    .button-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .error-msg {
-      background: #fff0f0;
-      border-left: 6px solid #d9534f;
-      padding: 1rem;
-      border-radius: 1rem;
-      color: #a94442;
-      text-align: center;
-    }
-
     footer {
       text-align: center;
-      font-size: 0.7rem;
-      padding: 1.5rem;
-      color: #b87c3c;
-      border-top: 1px solid #ffe0b5;
-      margin-top: 10px;
+      padding: 20px;
+      color: #526477;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 700px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      header h1 { font-size: 1.6rem; }
     }
   </style>
 </head>
-
 <body>
+  <header>
+    <h1>Order Online v2.0</h1>
+    <p>Upload products, choose store, set price — automatic price category.</p>
+  </header>
 
-<header>
-  👑 Kingsday Market
-  <small>🇳🇱 Dutch Queensday spirit · Chat · Pay · Details</small>
-</header>
+  <main class="wrap">
+    <section class="admin-panel">
+      <h2>Admin: Add Product</h2>
+      <div class="grid-2">
+        <div>
+          <label for="imageInput">Product image</label>
+          <input id="imageInput" type="file" accept="image/*" />
+          <img id="preview" class="preview" alt="Preview" />
+        </div>
+        <div>
+          <label for="nameInput">Product name</label>
+          <input id="nameInput" placeholder="Example: Micro Beamer" />
 
-<div class="container" id="products">
-  <div style="text-align: center; padding: 2rem;">🔄 Loading amazing products...</div>
-</div>
+          <label for="storeInput">Store</label>
+          <select id="storeInput">
+            <option value="Amazon">Amazon</option>
+            <option value="Bol.com">Bol.com</option>
+            <option value="eBay">eBay</option>
+            <option value="Temu">Temu</option>
+            <option value="Other">Other</option>
+          </select>
 
-<footer>
-  ✨ Click "Details" for extra info (fees, shipping, etc.) | Secure payments via Sentoo
-</footer>
+          <label for="priceInput">Price in XCG / Euro</label>
+          <input id="priceInput" type="number" step="0.01" placeholder="Example: 15" />
 
-<script>
-  // Your Google Sheets Web App URL
-  const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzoZNZ6ZdJV13pnrPmH6VAtz7T5W_N4XsoMPErbNmDnpCh7eK5Pk1GrT1eqRuyk8YqDTg/exec";
+          <label for="noteInput">Short note</label>
+          <textarea id="noteInput" rows="2" placeholder="Example: Excl. shipment, taxes, clearance and ordering fee"></textarea>
 
-  // Fetch product data and render cards including the new "Details" column
-  fetch(SHEET_API_URL)
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    })
-    .then(data => {
-      const container = document.getElementById("products");
-      container.innerHTML = "";
+          <button onclick="saveProduct()">Save Product</button>
+        </div>
+      </div>
+    </section>
 
-      if (!data || data.length === 0) {
-        container.innerHTML = '<div class="error-msg">✨ No products found at the moment. Check back soon!</div>';
+    <section class="customer-panel">
+      <h2>Customer: Browse by Price</h2>
+      <div class="price-tabs" id="priceTabs"></div>
+      <div id="productList" class="products"></div>
+      <button class="danger" onclick="clearProducts()">Clear all saved products</button>
+    </section>
+  </main>
+
+  <footer>
+    Ordered by Purcy & PracShipping • WhatsApp order flow ready
+  </footer>
+
+  <script>
+    const phoneNumber = "59995120536";
+    const ranges = [
+      { label: "1-10", min: 1, max: 10 },
+      { label: "11-20", min: 11, max: 20 },
+      { label: "21-30", min: 21, max: 30 },
+      { label: "31-50", min: 31, max: 50 },
+      { label: "51-100", min: 51, max: 100 },
+      { label: "100+", min: 101, max: Infinity }
+    ];
+
+    let selectedRange = "1-10";
+    let currentImage = "";
+
+    const imageInput = document.getElementById("imageInput");
+    const preview = document.getElementById("preview");
+
+    imageInput.addEventListener("change", function () {
+      const file = imageInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        currentImage = event.target.result;
+        preview.src = currentImage;
+        preview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function getProducts() {
+      return JSON.parse(localStorage.getItem("orderOnlineProductsV2") || "[]");
+    }
+
+    function setProducts(products) {
+      localStorage.setItem("orderOnlineProductsV2", JSON.stringify(products));
+    }
+
+    function getRangeLabel(price) {
+      const match = ranges.find(r => price >= r.min && price <= r.max);
+      return match ? match.label : "100+";
+    }
+
+    function saveProduct() {
+      const name = document.getElementById("nameInput").value.trim();
+      const store = document.getElementById("storeInput").value;
+      const price = parseFloat(document.getElementById("priceInput").value);
+      const note = document.getElementById("noteInput").value.trim();
+
+      if (!name || !store || !price || !currentImage) {
+        alert("Please add image, name, store and price.");
         return;
       }
 
-      // Loop through each product and build card with WhatsApp, Pay, and Details buttons
-      data.forEach(product => {
-        // Extract fields with safe fallbacks
-        const imageUrl = product["Image URL"] || product["Image"] || "https://placehold.co/600x600?text=Kingsday";
-        const productName = product["Product Name"] || product["name"] || "Kingsday special";
-        const price = product["Price (€)"] || product["price"] || "0";
-        const whatsappLink = product["WhatsApp Link"] || product["whatsapp_link"] || "#";
-        const sentooUrl = product["Sentoo QR URL"] || product["sentoo_url"] || "#";
-        
-        // IMPORTANT: The "Details" column from your Sheet (extra column)
-        // It can contain: "Product price only. Excl. shipping, taxes, clearance and ordering fee. Delivery estimate will be confirmed by WhatsApp."
-        const detailsText = product["Details"] || product["details"] || "ℹ️ No extra details added yet. Contact seller via WhatsApp for shipping & tax info.";
+      const product = {
+        id: Date.now(),
+        name,
+        store,
+        price,
+        note,
+        image: currentImage,
+        range: getRangeLabel(price)
+      };
 
-        // Create card container
-        const cardDiv = document.createElement("div");
-        cardDiv.className = "card";
+      const products = getProducts();
+      products.unshift(product);
+      setProducts(products);
 
-        // Image
-        const img = document.createElement("img");
-        img.src = imageUrl;
-        img.alt = productName;
-        img.loading = "lazy";
-        img.onerror = () => { img.src = "https://placehold.co/600x600?text=Image+not+found"; };
+      document.getElementById("nameInput").value = "";
+      document.getElementById("priceInput").value = "";
+      document.getElementById("noteInput").value = "";
+      imageInput.value = "";
+      currentImage = "";
+      preview.style.display = "none";
 
-        // Title
-        const titleDiv = document.createElement("div");
-        titleDiv.className = "title";
-        titleDiv.innerText = productName;
+      selectedRange = product.range;
+      renderTabs();
+      renderProducts();
+    }
 
-        // Price
-        const priceDiv = document.createElement("div");
-        priceDiv.className = "price";
-        priceDiv.innerHTML = `€${parseFloat(price).toFixed(2)} <span>incl. ?</span>`;
-
-        // Buttons wrapper
-        const btnWrapper = document.createElement("div");
-        btnWrapper.className = "button-group";
-
-        // WhatsApp button
-        const waBtn = document.createElement("a");
-        waBtn.className = "btn whatsapp";
-        waBtn.innerText = "💬 Chat on WhatsApp";
-        waBtn.href = whatsappLink;
-        waBtn.target = "_blank";
-        waBtn.rel = "noopener noreferrer";
-
-        // Pay button (Sentoo QR)
-        const payBtn = document.createElement("a");
-        payBtn.className = "btn pay";
-        payBtn.innerText = "💳 Pay with Sentoo";
-        payBtn.href = sentooUrl;
-        payBtn.target = "_blank";
-        payBtn.rel = "noopener noreferrer";
-
-        // DETAILS BUTTON — exactly as requested:
-        // <button class="btn details" onclick="alert(`${p["Details"] || "No details added yet."}`)">ℹ️ Details</button>
-        // Using JavaScript to attach click event with dynamic detailsText, also includes fallback.
-        const detailsBtn = document.createElement("button");
-        detailsBtn.className = "btn details";
-        detailsBtn.innerText = "ℹ️ Details";
-        
-        // Attach alert with product-specific details (escaped for safety, but it's plain text)
-        detailsBtn.addEventListener("click", (event) => {
-          event.preventDefault();
-          // Show exact details from spreadsheet column, with fallback message
-          alert(detailsText);
-        });
-
-        // Append all buttons to wrapper
-        btnWrapper.appendChild(waBtn);
-        btnWrapper.appendChild(payBtn);
-        btnWrapper.appendChild(detailsBtn);
-
-        // Assemble card
-        cardDiv.appendChild(img);
-        cardDiv.appendChild(titleDiv);
-        cardDiv.appendChild(priceDiv);
-        cardDiv.appendChild(btnWrapper);
-
-        container.appendChild(cardDiv);
+    function renderTabs() {
+      const tabs = document.getElementById("priceTabs");
+      tabs.innerHTML = "";
+      ranges.forEach(range => {
+        const btn = document.createElement("button");
+        btn.textContent = range.label;
+        btn.className = selectedRange === range.label ? "active" : "";
+        btn.onclick = () => {
+          selectedRange = range.label;
+          renderTabs();
+          renderProducts();
+        };
+        tabs.appendChild(btn);
       });
-    })
-    .catch(err => {
-      console.error("Fetch error:", err);
-      const container = document.getElementById("products");
-      container.innerHTML = `
-        <div class="error-msg">
-          ⚠️ Could not load products. Please refresh or try again later.<br>
-          <small style="opacity:0.7;">${err.message}</small>
-        </div>
-      `;
-    });
-</script>
+    }
 
-<!-- The design fully integrates:
-     - Extra column "Details" displayed via alert button.
-     - CSS for .details: background #555, width 100%, border: none, font-size:1rem.
-     - Each card shows WhatsApp link, Sentoo Pay, and Info button.
-     - Works with existing Google Sheet structure (Image URL, Product Name, Price, WhatsApp Link, Sentoo QR URL, Details).
-     - All marketplace logic is preserved and enhanced.
--->
+    function renderProducts() {
+      const list = document.getElementById("productList");
+      const products = getProducts().filter(p => p.range === selectedRange);
+      list.innerHTML = "";
+
+      if (products.length === 0) {
+        list.innerHTML = `<div class="empty">No products in this price range yet.</div>`;
+        return;
+      }
+
+      products.forEach(product => {
+        const msg = encodeURIComponent(
+          `Hello Purcy, I want to order this product:\n\n${product.name}\nStore: ${product.store}\nPrice: ${product.price}\nCategory: ${product.range}`
+        );
+        const waLink = `https://wa.me/${phoneNumber}?text=${msg}`;
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" />
+          <div class="card-body">
+            <span class="store-badge">${product.store}</span>
+            <h3>${product.name}</h3>
+            <div class="price">${product.price}</div>
+            <div class="small">Price range: ${product.range}</div>
+            <p class="small">${product.note || "Excl. shipment, taxes, clearance and ordering fee"}</p>
+            <div class="actions">
+              <button onclick="window.open('${waLink}', '_blank')">Order</button>
+              <button class="danger" onclick="deleteProduct(${product.id})">Delete</button>
+            </div>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function deleteProduct(id) {
+      const products = getProducts().filter(p => p.id !== id);
+      setProducts(products);
+      renderProducts();
+    }
+
+    function clearProducts() {
+      if (!confirm("Clear all saved products?")) return;
+      localStorage.removeItem("orderOnlineProductsV2");
+      renderProducts();
+    }
+
+    renderTabs();
+    renderProducts();
+  </script>
 </body>
 </html>
