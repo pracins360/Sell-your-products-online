@@ -116,4 +116,265 @@
     .price { font-size: 1.5rem; font-weight: bold; color: #0066d6; margin: 6px 0; }
     .small { color: #526477; font-size: 0.9rem; }
     .actions { display: flex; gap: 8px; }
-    .actions button { font-size: 0.85rem; padding:
+    .actions button { font-size: 0.85rem; padding: 9px; }
+    .empty {
+      text-align: center;
+      padding: 28px;
+      color: #526477;
+      border: 2px dashed #ccd6e0;
+      border-radius: 16px;
+      grid-column: 1 / -1;
+    }
+    .preview {
+      width: 100%;
+      max-height: 260px;
+      object-fit: contain;
+      background: #eef3f8;
+      border-radius: 14px;
+      margin-top: 10px;
+      display: none;
+    }
+    .mini-note {
+      background: #eef7ff;
+      border-left: 4px solid #0066d6;
+      padding: 10px;
+      border-radius: 10px;
+      color: #31445a;
+      font-size: 0.95rem;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #526477;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 700px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      header h1 { font-size: 1.6rem; }
+      .products { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Order Online v2.0</h1>
+    <p>Customer window + Admin window • Browse products by price range.</p>
+  </header>
+
+  <main class="wrap">
+    <div class="view-switch">
+      <button id="clientBtn" class="active" onclick="showView('client')">Client Window</button>
+      <button id="adminBtn" onclick="showView('admin')">Admin Window</button>
+    </div>
+
+    <section id="clientView" class="panel">
+      <h2>Browse by Price</h2>
+      <div class="price-tabs" id="priceTabs"></div>
+      <div id="productList" class="products"></div>
+    </section>
+
+    <section id="adminView" class="panel hidden">
+      <h2>Admin: Add Product</h2>
+      <p class="mini-note">Upload the product ad/image, choose store, choose currency symbol and enter the price. The app automatically places it in the right price category.</p>
+      <div class="grid-2">
+        <div>
+          <label for="imageInput">Product image</label>
+          <input id="imageInput" type="file" accept="image/*" />
+          <img id="preview" class="preview" alt="Preview" />
+        </div>
+        <div>
+          <label for="nameInput">Product name</label>
+          <input id="nameInput" placeholder="Example: NFC tags" />
+
+          <label for="storeInput">Store</label>
+          <select id="storeInput">
+            <option value="Amazon">Amazon</option>
+            <option value="Bol.com">Bol.com</option>
+            <option value="eBay">eBay</option>
+            <option value="Temu">Temu</option>
+            <option value="Other">Other</option>
+          </select>
+
+          <label for="currencyInput">Price symbol</label>
+          <select id="currencyInput">
+            <option value="XCG">XCG</option>
+            <option value="$">$</option>
+            <option value="€">€</option>
+          </select>
+
+          <label for="priceInput">Price</label>
+          <input id="priceInput" type="number" step="0.01" placeholder="Example: 10" />
+
+          <label for="noteInput">Short note</label>
+          <textarea id="noteInput" rows="2" placeholder="Price is exclusive shipment taxes and fees. App me for aprox price."></textarea>
+
+          <button onclick="saveProduct()">Save Product</button>
+          <button class="danger" onclick="clearProducts()">Clear all saved products</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Ordered by Purcy & PracShipping • WhatsApp order flow ready
+  </footer>
+
+  <script>
+    const phoneNumber = "59995120536";
+    const ranges = [
+      { label: "1-10", min: 1, max: 10 },
+      { label: "11-20", min: 11, max: 20 },
+      { label: "21-30", min: 21, max: 30 },
+      { label: "31-50", min: 31, max: 50 },
+      { label: "51-100", min: 51, max: 100 },
+      { label: "100+", min: 101, max: Infinity }
+    ];
+
+    let selectedRange = "1-10";
+    let currentImage = "";
+
+    const imageInput = document.getElementById("imageInput");
+    const preview = document.getElementById("preview");
+
+    function showView(view) {
+      document.getElementById("clientView").classList.toggle("hidden", view !== "client");
+      document.getElementById("adminView").classList.toggle("hidden", view !== "admin");
+      document.getElementById("clientBtn").classList.toggle("active", view === "client");
+      document.getElementById("adminBtn").classList.toggle("active", view === "admin");
+    }
+
+    imageInput.addEventListener("change", function () {
+      const file = imageInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        currentImage = event.target.result;
+        preview.src = currentImage;
+        preview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function getProducts() {
+      return JSON.parse(localStorage.getItem("orderOnlineProductsV2") || "[]");
+    }
+
+    function setProducts(products) {
+      localStorage.setItem("orderOnlineProductsV2", JSON.stringify(products));
+    }
+
+    function getRangeLabel(price) {
+      const match = ranges.find(r => price >= r.min && price <= r.max);
+      return match ? match.label : "100+";
+    }
+
+    function saveProduct() {
+      const name = document.getElementById("nameInput").value.trim();
+      const store = document.getElementById("storeInput").value;
+      const currency = document.getElementById("currencyInput").value;
+      const price = parseFloat(document.getElementById("priceInput").value);
+      const note = document.getElementById("noteInput").value.trim();
+
+      if (!name || !store || !price || !currentImage) {
+        alert("Please add image, name, store and price.");
+        return;
+      }
+
+      const product = {
+        id: Date.now(),
+        name,
+        store,
+        currency,
+        price,
+        note,
+        image: currentImage,
+        range: getRangeLabel(price)
+      };
+
+      const products = getProducts();
+      products.unshift(product);
+      setProducts(products);
+
+      document.getElementById("nameInput").value = "";
+      document.getElementById("priceInput").value = "";
+      document.getElementById("noteInput").value = "";
+      imageInput.value = "";
+      currentImage = "";
+      preview.style.display = "none";
+
+      selectedRange = product.range;
+      renderTabs();
+      renderProducts();
+      showView('client');
+    }
+
+    function renderTabs() {
+      const tabs = document.getElementById("priceTabs");
+      tabs.innerHTML = "";
+      ranges.forEach(range => {
+        const btn = document.createElement("button");
+        btn.textContent = range.label;
+        btn.className = selectedRange === range.label ? "active" : "";
+        btn.onclick = () => {
+          selectedRange = range.label;
+          renderTabs();
+          renderProducts();
+        };
+        tabs.appendChild(btn);
+      });
+    }
+
+    function renderProducts() {
+      const list = document.getElementById("productList");
+      const products = getProducts().filter(p => p.range === selectedRange);
+      list.innerHTML = "";
+
+      if (products.length === 0) {
+        list.innerHTML = `<div class="empty">No products in this price range yet.</div>`;
+        return;
+      }
+
+      products.forEach(product => {
+        const currency = product.currency || "";
+        const msg = encodeURIComponent(
+          `Hello Purcy, I want to order/ get more info about this product:\n\n${product.name}\nStore: ${product.store}\nPrice: ${currency} ${product.price}\nCategory: ${product.range}`
+        );
+        const waLink = `https://wa.me/${phoneNumber}?text=${msg}`;
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" />
+          <div class="card-body">
+            <span class="store-badge">${product.store}</span>
+            <h3>${product.name}</h3>
+            <div class="price">${currency} ${product.price}</div>
+            <div class="small">Price range: ${product.range}</div>
+            <p class="small">${product.note || "Price is exclusive shipment taxes and fees. App me for aprox price."}</p>
+            <div class="actions">
+              <button onclick="window.open('${waLink}', '_blank')">Order / Info</button>
+              <button class="danger" onclick="deleteProduct(${product.id})">Delete</button>
+            </div>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function deleteProduct(id) {
+      const products = getProducts().filter(p => p.id !== id);
+      setProducts(products);
+      renderProducts();
+    }
+
+    function clearProducts() {
+      if (!confirm("Clear all saved products?")) return;
+      localStorage.removeItem("orderOnlineProductsV2");
+      renderProducts();
+    }
+
+    renderTabs();
+    renderProducts();
+  </script>
+</body>
+</html>
