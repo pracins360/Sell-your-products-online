@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order Online v2.0</title>
+  <title>Order Online v2.1 Sheet + Drive</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -117,7 +117,7 @@
     .small { color: #526477; font-size: 0.9rem; }
     .actions { display: flex; gap: 8px; }
     .actions button { font-size: 0.85rem; padding: 9px; }
-    .empty {
+    .empty, .loading {
       text-align: center;
       padding: 28px;
       color: #526477;
@@ -157,25 +157,25 @@
 </head>
 <body>
   <header>
-    <h1>Order Online v2.0</h1>
-    <p>Customer window + Admin window • Browse products by price range.</p>
+    <h1>Order Online v2.1</h1>
+    <p>Google Sheet + Drive upload • Browse products by price range.</p>
   </header>
 
   <main class="wrap">
     <div class="view-switch">
       <button id="clientBtn" class="active" onclick="showView('client')">Client Window</button>
-      <button id="adminBtn" onclick="showView('admin')">Admin Window</button>
+      <button id="adminBtn" onclick="openAdmin()">Admin Window</button>
     </div>
 
     <section id="clientView" class="panel">
       <h2>Browse by Price</h2>
       <div class="price-tabs" id="priceTabs"></div>
-      <div id="productList" class="products"></div>
+      <div id="productList" class="products"><div class="loading">Loading products...</div></div>
     </section>
 
     <section id="adminView" class="panel hidden">
       <h2>Admin: Add Product</h2>
-      <p class="mini-note">Upload the product ad/image, choose store, choose currency symbol and enter the price. The app automatically places it in the right price category.</p>
+      <p class="mini-note">Upload the product ad/image, choose store, choose currency symbol and enter the price. The app uploads the image to Drive and saves the product in Google Sheets.</p>
       <div class="grid-2">
         <div>
           <label for="imageInput">Product image</label>
@@ -208,8 +208,7 @@
           <label for="noteInput">Short note</label>
           <textarea id="noteInput" rows="2" placeholder="Price is exclusive shipment taxes and fees. App me for aprox price."></textarea>
 
-          <button onclick="saveProduct()">Save Product</button>
-          <button class="danger" onclick="clearProducts()">Clear all saved products</button>
+          <button id="saveBtn" onclick="saveProduct()">Save Product to Sheet</button>
         </div>
       </div>
     </section>
@@ -220,7 +219,10 @@
   </footer>
 
   <script>
+    // STEP 1: Paste your Apps Script Web App URL here after deployment.
+    const API_URL = "https://script.google.com/macros/s/AKfycbzaid0W5kuBlFaqqIo7ptm5OXh0kRjGOFVSm_45J-mWHHuXtZsU9RZ1eU23R0pxSTwV-Q/exec";
     const phoneNumber = "59995120536";
+
     const ranges = [
       { label: "1-10", min: 1, max: 10 },
       { label: "11-20", min: 11, max: 20 },
@@ -232,6 +234,7 @@
 
     let selectedRange = "1-10";
     let currentImage = "";
+    let productsCache = [];
 
     const imageInput = document.getElementById("imageInput");
     const preview = document.getElementById("preview");
@@ -241,6 +244,20 @@
       document.getElementById("adminView").classList.toggle("hidden", view !== "admin");
       document.getElementById("clientBtn").classList.toggle("active", view === "client");
       document.getElementById("adminBtn").classList.toggle("active", view === "admin");
+    }
+
+    async function openAdmin() {
+      const pin = prompt("Enter admin PIN");
+      if (!pin) return;
+
+      try {
+        const res = await fetch(`${API_URL}?action=checkPin&pin=${encodeURIComponent(pin)}`);
+        const data = await res.json();
+        if (data.ok) showView('admin');
+        else alert("Wrong PIN");
+      } catch (err) {
+        alert("Could not check PIN. Check your API URL or internet connection.");
+      }
     }
 
     imageInput.addEventListener("change", function () {
@@ -255,57 +272,83 @@
       reader.readAsDataURL(file);
     });
 
-    function getProducts() {
-      return JSON.parse(localStorage.getItem("orderOnlineProductsV2") || "[]");
-    }
-
-    function setProducts(products) {
-      localStorage.setItem("orderOnlineProductsV2", JSON.stringify(products));
-    }
-
     function getRangeLabel(price) {
       const match = ranges.find(r => price >= r.min && price <= r.max);
       return match ? match.label : "100+";
     }
 
-    function saveProduct() {
+    async function loadProducts() {
+      renderTabs();
+      if (!API_URL || API_URL.includes("PASTE_YOUR")) {
+        document.getElementById("productList").innerHTML = `<div class="empty">Paste your Apps Script Web App URL in API_URL first.</div>`;
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}?action=listProducts`);
+        const data = await res.json();
+        productsCache = data.products || [];
+        renderProducts();
+      } catch (err) {
+        document.getElementById("productList").innerHTML = `<div class="empty">Could not load products from Google Sheet.</div>`;
+      }
+    }
+
+    async function saveProduct() {
       const name = document.getElementById("nameInput").value.trim();
       const store = document.getElementById("storeInput").value;
       const currency = document.getElementById("currencyInput").value;
       const price = parseFloat(document.getElementById("priceInput").value);
       const note = document.getElementById("noteInput").value.trim();
+      const file = imageInput.files[0];
 
-      if (!name || !store || !price || !currentImage) {
+      if (!name || !store || !price || !currentImage || !file) {
         alert("Please add image, name, store and price.");
         return;
       }
 
+      const saveBtn = document.getElementById("saveBtn");
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Uploading to Drive...";
+
       const product = {
-        id: Date.now(),
+        action: "addProduct",
         name,
         store,
         currency,
         price,
         note,
-        image: currentImage,
-        range: getRangeLabel(price)
+        range: getRangeLabel(price),
+        imageBase64: currentImage,
+        imageName: file.name,
+        mimeType: file.type || "image/png"
       };
 
-      const products = getProducts();
-      products.unshift(product);
-      setProducts(products);
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(product)
+        });
+        const data = await res.json();
 
-      document.getElementById("nameInput").value = "";
-      document.getElementById("priceInput").value = "";
-      document.getElementById("noteInput").value = "";
-      imageInput.value = "";
-      currentImage = "";
-      preview.style.display = "none";
+        if (!data.ok) throw new Error(data.error || "Save failed");
 
-      selectedRange = product.range;
-      renderTabs();
-      renderProducts();
-      showView('client');
+        document.getElementById("nameInput").value = "";
+        document.getElementById("priceInput").value = "";
+        document.getElementById("noteInput").value = "";
+        imageInput.value = "";
+        currentImage = "";
+        preview.style.display = "none";
+
+        selectedRange = product.range;
+        await loadProducts();
+        showView('client');
+      } catch (err) {
+        alert("Could not save product. " + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Product to Sheet";
+      }
     }
 
     function renderTabs() {
@@ -326,7 +369,7 @@
 
     function renderProducts() {
       const list = document.getElementById("productList");
-      const products = getProducts().filter(p => p.range === selectedRange);
+      const products = productsCache.filter(p => p.range === selectedRange);
       list.innerHTML = "";
 
       if (products.length === 0) {
@@ -344,7 +387,7 @@
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
-          <img src="${product.image}" alt="${product.name}" />
+          <img src="${product.imageUrl}" alt="${product.name}" />
           <div class="card-body">
             <span class="store-badge">${product.store}</span>
             <h3>${product.name}</h3>
@@ -353,7 +396,6 @@
             <p class="small">${product.note || "Price is exclusive shipment taxes and fees. App me for aprox price."}</p>
             <div class="actions">
               <button onclick="window.open('${waLink}', '_blank')">Order / Info</button>
-              <button class="danger" onclick="deleteProduct(${product.id})">Delete</button>
             </div>
           </div>
         `;
@@ -361,20 +403,7 @@
       });
     }
 
-    function deleteProduct(id) {
-      const products = getProducts().filter(p => p.id !== id);
-      setProducts(products);
-      renderProducts();
-    }
-
-    function clearProducts() {
-      if (!confirm("Clear all saved products?")) return;
-      localStorage.removeItem("orderOnlineProductsV2");
-      renderProducts();
-    }
-
-    renderTabs();
-    renderProducts();
+    loadProducts();
   </script>
 </body>
 </html>
