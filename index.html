@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order Online v2.1 Sheet + Drive</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Order Online v2.1 | Sheet + Drive Sync</title>
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
       background: #f3f6fb;
       color: #102033;
     }
@@ -17,176 +17,220 @@
       color: white;
       padding: 22px 16px;
       text-align: center;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
     }
-    header h1 { margin: 0; font-size: 2rem; }
-    header p { margin: 8px 0 0; opacity: 0.9; }
-    .wrap { max-width: 1100px; margin: auto; padding: 16px; }
+    header h1 { margin: 0; font-size: 2rem; letter-spacing: -0.3px; }
+    header p { margin: 8px 0 0; opacity: 0.9; font-size: 0.9rem; }
+    .wrap { max-width: 1200px; margin: auto; padding: 20px 16px; }
     .view-switch {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      justify-content: center;
     }
     .view-switch button {
-      margin: 0;
+      flex: 0 1 200px;
       background: #e8eef7;
       color: #102033;
+      border-radius: 60px;
+      font-weight: 600;
+      transition: 0.2s;
+      margin: 0;
+      border: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
     .view-switch button.active {
       background: #0066d6;
       color: white;
+      box-shadow: 0 6px 12px rgba(0,102,214,0.2);
     }
     .panel {
       background: white;
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 18px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border-radius: 28px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+      transition: all 0.2s;
     }
     .hidden { display: none; }
-    h2 { margin-top: 0; }
-    label { font-weight: bold; display: block; margin: 12px 0 6px; }
+    h2 { margin-top: 0; font-weight: 600; color: #071c36; border-left: 5px solid #0066d6; padding-left: 14px; }
+    label { font-weight: 600; display: block; margin: 16px 0 6px; color: #1e2f44; }
     input, select, textarea, button {
       width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #ccd6e0;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid #ccdbe9;
       font-size: 1rem;
+      font-family: inherit;
+      background: #fff;
+      transition: 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #0066d6;
+      box-shadow: 0 0 0 3px rgba(0,102,214,0.2);
     }
     button {
       background: #0066d6;
       color: white;
-      font-weight: bold;
+      font-weight: 700;
       border: none;
       cursor: pointer;
-      margin-top: 14px;
+      margin-top: 16px;
+      border-radius: 40px;
+      letter-spacing: 0.3px;
     }
-    button:hover { background: #004da3; }
+    button:hover { background: #004da3; transform: translateY(-1px); }
     .danger { background: #d62828; }
     .danger:hover { background: #a81818; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     .price-tabs {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       overflow-x: auto;
-      padding-bottom: 8px;
-      margin-bottom: 12px;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
     .price-tabs button {
-      min-width: 95px;
+      min-width: 80px;
       margin-top: 0;
-      background: #e8eef7;
-      color: #102033;
-      border: 1px solid #cdd8e6;
+      background: #eef3fc;
+      color: #1e3a5f;
+      border: 1px solid #cbdde9;
+      font-weight: 600;
+      padding: 8px 16px;
     }
     .price-tabs button.active {
       background: #0066d6;
       color: white;
+      border-color: #0066d6;
     }
     .products {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 22px;
     }
     .card {
       background: white;
-      border-radius: 16px;
+      border-radius: 24px;
       overflow: hidden;
-      border: 1px solid #dde5ef;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      border: 1px solid #e4edf5;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
     .card img {
       width: 100%;
-      height: 190px;
-      object-fit: contain;
-      background: #edf2f7;
-      padding: 6px;
+      height: 200px;
+      object-fit: cover;
+      background: #f4f9fe;
+      border-bottom: 1px solid #e9f0f5;
     }
-    .card-body { padding: 12px; }
+    .card-body { padding: 16px; }
     .store-badge {
       display: inline-block;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: #ffcc00;
-      color: #111;
-      font-size: 0.8rem;
-      font-weight: bold;
-      margin-bottom: 6px;
+      padding: 4px 12px;
+      border-radius: 60px;
+      background: #ffecb3;
+      color: #5a3e00;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
-    .price { font-size: 1.5rem; font-weight: bold; color: #0066d6; margin: 6px 0; }
-    .small { color: #526477; font-size: 0.9rem; }
-    .actions { display: flex; gap: 8px; }
-    .actions button { font-size: 0.85rem; padding: 9px; }
+    .price { font-size: 1.7rem; font-weight: 800; color: #0066d6; margin: 8px 0; line-height: 1.2; }
+    .small { color: #5f6f86; font-size: 0.85rem; margin-top: 6px; }
+    .actions button {
+      background: #25d366;
+      margin-top: 12px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 40px;
+    }
+    .actions button:hover { background: #1da958; }
     .empty, .loading {
       text-align: center;
-      padding: 28px;
-      color: #526477;
-      border: 2px dashed #ccd6e0;
-      border-radius: 16px;
+      padding: 40px;
+      color: #6c7f9c;
+      background: #f9fcff;
+      border-radius: 28px;
+      border: 2px dashed #cde1f0;
       grid-column: 1 / -1;
     }
     .preview {
       width: 100%;
-      max-height: 260px;
+      max-height: 200px;
       object-fit: contain;
-      background: #eef3f8;
-      border-radius: 14px;
-      margin-top: 10px;
-      display: none;
+      background: #f0f4fa;
+      border-radius: 20px;
+      margin-top: 14px;
+      border: 1px solid #cddfed;
     }
     .mini-note {
       background: #eef7ff;
-      border-left: 4px solid #0066d6;
+      border-left: 5px solid #0066d6;
+      padding: 12px 16px;
+      border-radius: 18px;
+      color: #1c4e7c;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+    .status-msg {
+      background: #e6f7e6;
+      color: #2e6b2f;
       padding: 10px;
-      border-radius: 10px;
-      color: #31445a;
-      font-size: 0.95rem;
+      border-radius: 50px;
+      text-align: center;
+      font-size: 0.85rem;
+      margin-top: 14px;
     }
     footer {
       text-align: center;
       padding: 20px;
-      color: #526477;
-      font-size: 0.9rem;
+      color: #6b7e9c;
+      font-size: 0.85rem;
+      border-top: 1px solid #dce5ef;
     }
-    @media (max-width: 700px) {
+    @media (max-width: 680px) {
       .grid-2 { grid-template-columns: 1fr; }
-      header h1 { font-size: 1.6rem; }
+      .panel { padding: 16px; }
       .products { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Order Online v2.1</h1>
-    <p>Google Sheet + Drive upload • Browse products by price range.</p>
+    <h1>📦 Order Online v2.1</h1>
+    <p>Google Sheets + Drive • Live product catalog & image hosting</p>
   </header>
 
   <main class="wrap">
     <div class="view-switch">
-      <button id="clientBtn" class="active" onclick="showView('client')">Client Window</button>
-      <button id="adminBtn" onclick="openAdmin()">Admin Window</button>
+      <button id="clientBtn" class="active">🛒 Customer Store</button>
+      <button id="adminBtn">🔐 Admin Panel</button>
     </div>
 
     <section id="clientView" class="panel">
-      <h2>Browse by Price</h2>
+      <h2>📸 Browse by Price</h2>
       <div class="price-tabs" id="priceTabs"></div>
-      <div id="productList" class="products"><div class="loading">Loading products...</div></div>
+      <div id="productList" class="products"><div class="loading">⚡ Loading products from Google Sheet...</div></div>
     </section>
 
     <section id="adminView" class="panel hidden">
-      <h2>Admin: Add Product</h2>
-      <p class="mini-note">Upload the product ad/image, choose store, choose currency symbol and enter the price. The app uploads the image to Drive and saves the product in Google Sheets.</p>
+      <h2>✚ Add New Product (Drive + Sheet)</h2>
+      <p class="mini-note">✅ Image uploaded directly to Google Drive ➜ public URL saved in Sheet. Supports all stores & currencies.</p>
       <div class="grid-2">
         <div>
-          <label for="imageInput">Product image</label>
-          <input id="imageInput" type="file" accept="image/*" />
-          <img id="preview" class="preview" alt="Preview" />
+          <label>🖼️ Product image (JPG/PNG)</label>
+          <input id="imageInput" type="file" accept="image/jpeg, image/png, image/webp" />
+          <img id="preview" class="preview" alt="Image preview" style="display: none;" />
         </div>
         <div>
-          <label for="nameInput">Product name</label>
-          <input id="nameInput" placeholder="Example: NFC tags" />
+          <label>🏷️ Product name *</label>
+          <input id="nameInput" placeholder="e.g., Wireless Mouse" />
 
-          <label for="storeInput">Store</label>
+          <label>🏪 Store *</label>
           <select id="storeInput">
             <option value="Amazon">Amazon</option>
             <option value="Bol.com">Bol.com</option>
@@ -195,34 +239,39 @@
             <option value="Other">Other</option>
           </select>
 
-          <label for="currencyInput">Price symbol</label>
+          <label>💰 Currency symbol</label>
           <select id="currencyInput">
-            <option value="XCG">XCG</option>
-            <option value="$">$</option>
-            <option value="€">€</option>
+            <option value="$">$ USD</option>
+            <option value="€">€ EUR</option>
+            <option value="XCG">XCG Florin</option>
+            <option value="£">£ GBP</option>
           </select>
 
-          <label for="priceInput">Price</label>
-          <input id="priceInput" type="number" step="0.01" placeholder="Example: 10" />
+          <label>💵 Price *</label>
+          <input id="priceInput" type="number" step="0.01" placeholder="0.00" />
 
-          <label for="noteInput">Short note</label>
-          <textarea id="noteInput" rows="2" placeholder="Price is exclusive shipment taxes and fees. App me for aprox price."></textarea>
+          <label>📝 Short note (optional)</label>
+          <textarea id="noteInput" rows="2" placeholder="Shipping info, taxes, etc.">Price excludes shipment & fees. Contact for details.</textarea>
 
-          <button id="saveBtn" onclick="saveProduct()">Save Product to Sheet</button>
+          <button id="saveBtn">⬆️ Upload to Drive & Save Product</button>
+          <div id="uploadStatus" class="status-msg" style="display:none;"></div>
         </div>
       </div>
     </section>
   </main>
-
   <footer>
-    Ordered by Purcy & PracShipping • WhatsApp order flow ready
+    🚚 Powered by Google Apps Script | Direct Drive image upload • WhatsApp ordering • Purcy & PracShipping
   </footer>
 
   <script>
-    // STEP 1: Paste your Apps Script Web App URL here after deployment.
+    // ======================= CONFIGURATION =======================
+    // 🔴 IMPORTANT: Replace with YOUR Google Apps Script Web App URL (published as "Execute as Me" and accessible to anyone)
+    // The script must handle: action=listProducts, action=checkPin, and POST requests with product + imageBase64 and imageName.
+    // See backend instructions below.
     const API_URL = "https://script.google.com/macros/s/AKfycbx7v7mQN_QIv6B3RW30UM-9kxUHys5sg196LrYvCctFNH8pUYqTmjcQBqgl8lpzOIwqtA/exec";
     const phoneNumber = "59995120536";
 
+    // Price range definitions
     const ranges = [
       { label: "1-10", min: 1, max: 10 },
       { label: "11-20", min: 11, max: 20 },
@@ -233,177 +282,315 @@
     ];
 
     let selectedRange = "1-10";
-    let currentImage = "";
-    let productsCache = [];
+    let productsCache = [];     // array of products from sheet
+    let currentImageBase64 = "";
+    let currentImageFile = null;
 
+    // DOM elements
+    const clientView = document.getElementById("clientView");
+    const adminView = document.getElementById("adminView");
+    const clientBtn = document.getElementById("clientBtn");
+    const adminBtn = document.getElementById("adminBtn");
     const imageInput = document.getElementById("imageInput");
-    const preview = document.getElementById("preview");
+    const previewImg = document.getElementById("preview");
+    const nameInput = document.getElementById("nameInput");
+    const storeInput = document.getElementById("storeInput");
+    const currencyInput = document.getElementById("currencyInput");
+    const priceInput = document.getElementById("priceInput");
+    const noteInput = document.getElementById("noteInput");
+    const saveBtn = document.getElementById("saveBtn");
+    const uploadStatusDiv = document.getElementById("uploadStatus");
 
+    // Helper: Show view client/admin
     function showView(view) {
-      document.getElementById("clientView").classList.toggle("hidden", view !== "client");
-      document.getElementById("adminView").classList.toggle("hidden", view !== "admin");
-      document.getElementById("clientBtn").classList.toggle("active", view === "client");
-      document.getElementById("adminBtn").classList.toggle("active", view === "admin");
+      if (view === 'client') {
+        clientView.classList.remove("hidden");
+        adminView.classList.add("hidden");
+        clientBtn.classList.add("active");
+        adminBtn.classList.remove("active");
+        // refresh product listing in case admin added new items
+        loadProducts();
+      } else {
+        clientView.classList.add("hidden");
+        adminView.classList.remove("hidden");
+        clientBtn.classList.remove("active");
+        adminBtn.classList.add("active");
+      }
     }
 
+    // Admin authentication via PIN check (requires backend support)
     async function openAdmin() {
-      const pin = prompt("Enter admin PIN");
+      const pin = prompt("Enter admin PIN to access product management:");
       if (!pin) return;
 
       try {
-        const res = await fetch(`${API_URL}?action=checkPin&pin=${encodeURIComponent(pin)}`);
-        const data = await res.json();
-        if (data.ok) showView('admin');
-        else alert("Wrong PIN");
+        const resp = await fetch(`${API_URL}?action=checkPin&pin=${encodeURIComponent(pin)}`);
+        const data = await resp.json();
+        if (data.ok === true) {
+          showView('admin');
+          // reset admin form fields
+          resetAdminForm();
+        } else {
+          alert("❌ Invalid PIN. Access denied.");
+        }
       } catch (err) {
-        alert("Could not check PIN. Check your API URL or internet connection.");
+        console.error(err);
+        alert("⚠️ Cannot verify PIN. Check API URL and CORS. Make sure Apps Script is deployed as 'Execute as me' and allows anonymous access.");
       }
     }
 
-    imageInput.addEventListener("change", function () {
-      const file = imageInput.files[0];
+    function resetAdminForm() {
+      nameInput.value = "";
+      storeInput.value = "Amazon";
+      currencyInput.value = "$";
+      priceInput.value = "";
+      noteInput.value = "Price excludes shipment & fees. Contact for details.";
+      imageInput.value = "";
+      currentImageBase64 = "";
+      currentImageFile = null;
+      previewImg.style.display = "none";
+      previewImg.src = "";
+      uploadStatusDiv.style.display = "none";
+    }
+
+    // Convert uploaded file to base64 with proper mime
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    imageInput.addEventListener("change", async function (e) {
+      const file = e.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        currentImage = event.target.result;
-        preview.src = currentImage;
-        preview.style.display = "block";
-      };
-      reader.readAsDataURL(file);
+      if (!file.type.match('image.*')) {
+        alert("Please select an image file (JPEG, PNG, WEBP).");
+        imageInput.value = "";
+        return;
+      }
+      currentImageFile = file;
+      try {
+        const b64 = await fileToBase64(file);
+        currentImageBase64 = b64;   // DataURL format "data:image/...;base64,..."
+        previewImg.src = b64;
+        previewImg.style.display = "block";
+      } catch (err) {
+        alert("Failed to read image.");
+      }
     });
 
+    // Map numeric price to range label
     function getRangeLabel(price) {
-      const match = ranges.find(r => price >= r.min && price <= r.max);
-      return match ? match.label : "100+";
+      const found = ranges.find(r => price >= r.min && price <= r.max);
+      return found ? found.label : "100+";
     }
 
+    // Fetch products from Google Sheet
     async function loadProducts() {
-      renderTabs();
-      if (!API_URL || API_URL.includes("PASTE_YOUR")) {
-        document.getElementById("productList").innerHTML = `<div class="empty">Paste your Apps Script Web App URL in API_URL first.</div>`;
+      if (!API_URL || API_URL.includes("script.google.com") === false) {
+        document.getElementById("productList").innerHTML = `<div class="empty">⚠️ Set correct API_URL (your Apps Script Web App).</div>`;
         return;
       }
-
       try {
-        const res = await fetch(`${API_URL}?action=listProducts`);
+        const res = await fetch(`${API_URL}?action=listProducts&t=${Date.now()}`);
         const data = await res.json();
-        productsCache = data.products || [];
+        if (data.products && Array.isArray(data.products)) {
+          productsCache = data.products;
+        } else {
+          productsCache = [];
+        }
         renderProducts();
+        renderTabs();
       } catch (err) {
-        document.getElementById("productList").innerHTML = `<div class="empty">Could not load products from Google Sheet.</div>`;
-      }
-    }
-
-    async function saveProduct() {
-      const name = document.getElementById("nameInput").value.trim();
-      const store = document.getElementById("storeInput").value;
-      const currency = document.getElementById("currencyInput").value;
-      const price = parseFloat(document.getElementById("priceInput").value);
-      const note = document.getElementById("noteInput").value.trim();
-      const file = imageInput.files[0];
-
-      if (!name || !store || !price || !currentImage || !file) {
-        alert("Please add image, name, store and price.");
-        return;
-      }
-
-      const saveBtn = document.getElementById("saveBtn");
-      saveBtn.disabled = true;
-      saveBtn.textContent = "Uploading to Drive...";
-
-      const product = {
-        action: "addProduct",
-        name,
-        store,
-        currency,
-        price,
-        note,
-        range: getRangeLabel(price),
-        imageBase64: currentImage,
-        imageName: file.name,
-        mimeType: file.type || "image/png"
-      };
-
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify(product)
-        });
-        const data = await res.json();
-
-        if (!data.ok) throw new Error(data.error || "Save failed");
-
-        document.getElementById("nameInput").value = "";
-        document.getElementById("priceInput").value = "";
-        document.getElementById("noteInput").value = "";
-        imageInput.value = "";
-        currentImage = "";
-        preview.style.display = "none";
-
-        selectedRange = product.range;
-        await loadProducts();
-        showView('client');
-      } catch (err) {
-        alert("Could not save product. " + err.message);
-      } finally {
-        saveBtn.disabled = false;
-        saveBtn.textContent = "Save Product to Sheet";
+        console.error(err);
+        document.getElementById("productList").innerHTML = `<div class="empty">📡 Could not reach Google Sheet. Check API URL / CORS. Error: ${err.message}</div>`;
+        productsCache = [];
+        renderTabs();
       }
     }
 
     function renderTabs() {
-      const tabs = document.getElementById("priceTabs");
-      tabs.innerHTML = "";
-      ranges.forEach(range => {
+      const tabsContainer = document.getElementById("priceTabs");
+      if (!tabsContainer) return;
+      tabsContainer.innerHTML = "";
+      ranges.forEach(r => {
         const btn = document.createElement("button");
-        btn.textContent = range.label;
-        btn.className = selectedRange === range.label ? "active" : "";
-        btn.onclick = () => {
-          selectedRange = range.label;
+        btn.textContent = r.label;
+        btn.classList.toggle("active", selectedRange === r.label);
+        btn.addEventListener("click", () => {
+          selectedRange = r.label;
           renderTabs();
           renderProducts();
-        };
-        tabs.appendChild(btn);
+        });
+        tabsContainer.appendChild(btn);
       });
     }
 
     function renderProducts() {
-      const list = document.getElementById("productList");
-      const products = productsCache.filter(p => p.range === selectedRange);
-      list.innerHTML = "";
-
-      if (products.length === 0) {
-        list.innerHTML = `<div class="empty">No products in this price range yet.</div>`;
+      const container = document.getElementById("productList");
+      const filtered = productsCache.filter(p => p.range === selectedRange);
+      if (!filtered.length) {
+        container.innerHTML = `<div class="empty">✨ No products in this range — add some in admin panel.</div>`;
         return;
       }
-
-      products.forEach(product => {
-        const currency = product.currency || "";
+      container.innerHTML = "";
+      filtered.forEach(prod => {
+        const currency = prod.currency || "$";
+        const priceVal = prod.price;
+        const productName = prod.name || "Unnamed";
+        const store = prod.store || "Store";
+        const imageUrl = prod.imageUrl || "";
+        const noteText = prod.note || "Price excludes shipment taxes & fees. App me for aprox price.";
         const msg = encodeURIComponent(
-          `Hello Purcy, I want to order/ get more info about this product:\n\n${product.name}\nStore: ${product.store}\nPrice: ${currency} ${product.price}\nCategory: ${product.range}`
+          `🛍️ ORDER / INFO REQUEST\n\nProduct: ${productName}\n🏪 Store: ${store}\n💰 Price: ${currency} ${priceVal}\n📂 Category: ${prod.range}\n\nMessage: I'm interested in this product.`
         );
         const waLink = `https://wa.me/${phoneNumber}?text=${msg}`;
 
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
-          <img src="${product.imageUrl}" alt="${product.name}" />
+          <img src="${imageUrl}" alt="${productName}" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
           <div class="card-body">
-            <span class="store-badge">${product.store}</span>
-            <h3>${product.name}</h3>
-            <div class="price">${currency} ${product.price}</div>
-            <div class="small">Price range: ${product.range}</div>
-            <p class="small">${product.note || "Price is exclusive shipment taxes and fees. App me for aprox price."}</p>
+            <span class="store-badge">${escapeHtml(store)}</span>
+            <h3 style="margin: 8px 0; font-size:1.2rem;">${escapeHtml(productName)}</h3>
+            <div class="price">${escapeHtml(currency)} ${parseFloat(priceVal).toFixed(2)}</div>
+            <div class="small">📊 ${escapeHtml(prod.range)}</div>
+            <p class="small">${escapeHtml(noteText.substring(0, 100))}</p>
             <div class="actions">
-              <button onclick="window.open('${waLink}', '_blank')">Order / Info</button>
+              <button class="wa-order-btn">💬 Order / Info via WhatsApp</button>
             </div>
           </div>
         `;
-        list.appendChild(card);
+        const orderBtn = card.querySelector(".wa-order-btn");
+        orderBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          window.open(waLink, "_blank");
+        });
+        container.appendChild(card);
       });
     }
 
-    loadProducts();
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    // ---------- SAVE PRODUCT WITH DRIVE UPLOAD ----------
+    async function saveProduct() {
+      const name = nameInput.value.trim();
+      const store = storeInput.value;
+      const currency = currencyInput.value;
+      const price = parseFloat(priceInput.value);
+      const note = noteInput.value.trim() || "Price excludes shipment & fees. Contact for details.";
+
+      if (!name) { alert("Product name is required."); return; }
+      if (isNaN(price) || price <= 0) { alert("Valid price > 0 required."); return; }
+      if (!currentImageBase64 || !currentImageFile) {
+        alert("Please select an image file (JPEG/PNG) for the product.");
+        return;
+      }
+
+      const rangeLabel = getRangeLabel(price);
+      const fileExt = currentImageFile.name.split('.').pop().toLowerCase();
+      const safeName = name.replace(/[^a-z0-9]/gi, '_').substring(0, 40);
+      const imageName = `product_${Date.now()}_${safeName}.${fileExt}`;
+
+      const payload = {
+        action: "addProduct",
+        name: name,
+        store: store,
+        currency: currency,
+        price: price,
+        note: note,
+        range: rangeLabel,
+        imageBase64: currentImageBase64,   // full data URL
+        imageName: imageName,
+        mimeType: currentImageFile.type
+      };
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = "⏫ Uploading image to Drive...";
+      uploadStatusDiv.style.display = "block";
+      uploadStatusDiv.textContent = "⏳ Sending to Google Apps Script...";
+      uploadStatusDiv.style.background = "#fff3cf";
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          mode: "cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (result.ok === true) {
+          uploadStatusDiv.textContent = "✅ Product saved! Image stored in Drive, row added to Sheet.";
+          uploadStatusDiv.style.background = "#e2f7e4";
+          // reset form fields
+          imageInput.value = "";
+          currentImageBase64 = "";
+          currentImageFile = null;
+          previewImg.style.display = "none";
+          previewImg.src = "";
+          nameInput.value = "";
+          priceInput.value = "";
+          noteInput.value = "Price excludes shipment & fees. Contact for details.";
+          // reload product list automatically and switch to client
+          await loadProducts();
+          setTimeout(() => {
+            showView('client');
+            uploadStatusDiv.style.display = "none";
+          }, 1600);
+        } else {
+          throw new Error(result.error || "Unknown backend error");
+        }
+      } catch (err) {
+        console.error("Save error:", err);
+        uploadStatusDiv.textContent = `❌ Failed: ${err.message}. Ensure Apps Script properly handles imageBase64, DriveApp, and returns {ok:true, imageUrl:...}.`;
+        uploadStatusDiv.style.background = "#ffe0e0";
+        saveBtn.disabled = false;
+        saveBtn.textContent = "⬆️ Upload to Drive & Save Product";
+      } finally {
+        setTimeout(() => {
+          if (saveBtn.disabled === false) {
+            uploadStatusDiv.style.display = "none";
+          } else {
+            // if still disabled after error, re-enable after 3s
+            setTimeout(() => {
+              saveBtn.disabled = false;
+              saveBtn.textContent = "⬆️ Upload to Drive & Save Product";
+              uploadStatusDiv.style.display = "none";
+            }, 3000);
+          }
+        }, 2000);
+      }
+    }
+
+    saveBtn.onclick = saveProduct;
+
+    // EVENT LISTENERS for view buttons
+    clientBtn.addEventListener("click", () => showView('client'));
+    adminBtn.addEventListener("click", openAdmin);
+
+    // Additional: fallback help for invalid API_URL
+    window.addEventListener("load", () => {
+      if (!API_URL || API_URL === "" || API_URL.includes("PASTE_YOUR")) {
+        console.warn("Please replace API_URL with your Apps Script web app URL.");
+        document.getElementById("productList").innerHTML = `<div class="empty">🔧 Configuration needed: open script and replace API_URL constant with your Google Apps Script Web App URL (published).</div>`;
+      } else {
+        loadProducts();
+      }
+    });
+
+    // Provide global hint on console for backend implementation
+    console.log("✅ OrderOnline v2.1 Frontend ready. Ensure Google Apps Script endpoint supports:\n" +
+      "1) GET ?action=listProducts -> returns { products: [ {name,store,currency,price,note,range,imageUrl} ] }\n" +
+      "2) GET ?action=checkPin&pin=xxx -> { ok: true/false }\n" +
+      "3) POST with JSON { action:'addProduct', imageBase64, imageName, mimeType, name, store, currency, price, note, range }\n" +
+      "Backend must save image to Drive (create folder), get public download URL (by setting sharing, or using thumbnailLink), then append row to Sheet.\n" +
+      "Important: DriveApp.getFolderById, createFile, setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW), and return { ok:true, imageUrl:'...' }");
   </script>
+  <!-- Backend guidance note: The Google Apps Script must accept POST, extract imageBase64, convert blob,
+       upload to Drive folder, get file URL (by file.getUrl() after setting sharing), store in sheet + return imageUrl to frontend.
+       Sheet columns: Name, Store, Currency, Price, Note, Range, ImageUrl, Timestamp. -->
 </body>
 </html>
